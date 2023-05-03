@@ -1,0 +1,5 @@
+b=7
+##esto tambien es comentado
+a = 32.4 *(-8.6 - b)/       6.1E-8
+def funcion(): 
+d = a ^ b # Esto es un comentario
