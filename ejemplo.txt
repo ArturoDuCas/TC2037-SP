@@ -1,5 +1,12 @@
-b=7
-##esto tambien es comentado
-a = 32.4 *(-8.6 - b)/       6.1E-8
-def funcion(): 
-d = a ^ b # Esto es un comentario
+# sqrt para calcular raices cuadradas
+from math import sqrt 
+
+def fib(n):
+    if n  2:
+        return n
+    else:
+        u = ((1+sqrt(5))/2)
+        j = ((u**n-(1-u)**n)/sqrt(5))
+        # round nos permite redondear numeros flotantes
+        return round(j)
+fib(9)

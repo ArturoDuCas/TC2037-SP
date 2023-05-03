@@ -10,13 +10,14 @@ OPERATOR = {'+', '-', '=', '/', '*'}
 SPECIAL = {'(', ')'}
 OTHER = {".", " ", "_"}
 ALPHABET = DECIMAL | LETTER | OPERATOR | SPECIAL | OTHER
-
+f = open('index.html','w')
 #String en el que almacenamos el inicio de nuestro documento html y las clases para cada tipo de elemento de python
 startFile = """
 <!DOCTYPE html>
 <html>
   <head>
     <style>
+
         .comment {
           color: green;
         }
@@ -30,7 +31,7 @@ startFile = """
         }
         
         .literal {
-          color: blue;
+          color: lightgreen;
         }
         
         .operator {
@@ -43,10 +44,11 @@ startFile = """
         
         html {
           background-color: black;
+          line-height: .1px;
         }
 
-        br{
-            heihgt: 2px;
+        p {
+            display: inline-block;
         }
     </style>
   </head>
@@ -91,14 +93,20 @@ def tokenHandler(actual, next, token, char):
         token += char 
         fix = True
     elif (actual in {7, 10}): # Se termino el Entero 
-        print(token, "-> Integer")
+        tag = literal + ' ' + token + closingTag
+        f.write(tag)
+        # print(token, "-> Integer")
         token = ""
     elif (actual in {12, 15, 11}): 
-        print(token, "-> Floating")
+        tag = literal + ' ' + token + closingTag
+        f.write(tag)
+        # print(token, "-> Floating")
         token = ""
 
     if(actual == 1 and next != 7): # MINUS
-        print(token, "-> Minus")
+        tag = operator + ' ' + token + closingTag
+        f.write(tag)
+        # print(token, "-> Minus")
         token = ""
 
     if (next in {6, 16}): # DIVISION OR COMMENT
@@ -106,13 +114,19 @@ def tokenHandler(actual, next, token, char):
         fix = True 
     elif (actual == 6): # Se termino la Division
         if (fix):
-            print (token[:-1], "-> Division")
+            tag = operator + ' ' + token[:-1] + closingTag
+            f.write(tag)
+            # print (token[:-1], "-> Division")
             token = token[-1]
         else:
-            print(token, "-> Division")
+            tag = operator + ' ' + token + closingTag
+            f.write(tag)
+            # print(token, "-> Division")
             token = ""
     elif (actual == 16): # Se termino el comentario
-        print(token, "-> Comment")
+        tag = comment + ' ' + token + closingTag
+        f.write(tag)
+        # print(token, "-> Comment")
         token = ""
 
     if (next == 17): # VARIABLES 
@@ -120,10 +134,14 @@ def tokenHandler(actual, next, token, char):
         fix = True 
     elif (actual == 17 and next != 17): # Se termino la variable
         if (fix): 
-            print (token[:-1], "-> Variable")
+            tag = identifyer + ' ' + token[:-1] + closingTag
+            f.write(tag)
+            # print (token[:-1], "-> Variable")
             token = token[-1]
         else:
-            print(token, "-> Variable")
+            tag = identifyer + ' ' + token + closingTag
+            f.write(tag)
+            # print(token, "-> Variable")
             token = ""
 
     if (next in {4, 3}): # POWER
@@ -131,35 +149,60 @@ def tokenHandler(actual, next, token, char):
         fix = True
     elif (actual == 4): # Se termino el Power
         if (fix): 
-            print (token[:-1], "-> Power")
+            tag = operator + ' ' + token[:-1] + closingTag
+            f.write(tag)
+            # print (token[:-1], "-> Power")
             token = token[-1]
         else:
-            print(token, "-> Power")
+            tag = operator + ' ' + token + closingTag
+            f.write(tag)
+            # print(token, "-> Power")
             token = ""
     elif (actual == 3): # Se termino la Multiplicacion
         if (fix): 
-            print (token[:-1], "-> Multiplication")
+            tag = operator + ' ' + token[:-1] + closingTag
+            f.write(tag)
+            # print (token[:-1], "-> Multiplication")
             token = token[-1]
         else:
-            print(token, "-> Multiplication")
+            tag = operator + ' ' + token + closingTag
+            f.write(tag)
+            # print(token, "-> Multiplication")
             token = ""
 
 
     if (next == 2): # PLUS 
-        print(char, "-> Plus")
+        # print(char, "-> Plus")
+        tag = operator + ' ' + char + closingTag
+        f.write(tag)
     elif (next == 1): # MINUS
         token += char 
     elif (next == 5): # EQUALS
-        print(char, "-> Equals")
+        tag = operator + ' ' + char + closingTag
+        f.write(tag)
+        # print(char, "-> Equals")
     elif (next == 19): # OPENING PARENTHESIS
-        print(char, "-> Opening parenthesis")
+        tag = operator + ' ' + char + closingTag
+        f.write(tag)
+        # print(char, "-> Opening parenthesis")
     elif (next == 18): # CLOSING PARENTHESIS
-        print(char, "-> Closing parenthesis")
+        tag = operator + ' ' + char + closingTag
+        f.write(tag)
+        # print(char, "-> Closing parenthesis")
     elif (next == 21): # POWER
-        print(char, "-> Power")
+        tag = operator + ' ' + char + closingTag
+        f.write(tag)
+        # print(char, "-> Power")
     elif (next == 22): # COLON
-        print(char, "-> Colon")
-
+        tag = operator + ' ' + char + closingTag
+        f.write(tag)
+        # print(char, "-> Colon")
+    elif (char == '\n'): # salto de linea
+        f.write('<br>')
+        return token
+    elif (char == ' '): 
+        f.write('<p>&nbsp;<p>')
+        return token        
     return token
 
 
@@ -223,7 +266,7 @@ def lexerAritmetico(file_name):
 
 def main():
     # file_name = input("Ingrese el nombre del archivo: ")
-    f = open('index.html','w')
+    
     f.write(startFile)
    
     file_name = 'ejemplo.txt'
