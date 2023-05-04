@@ -10,7 +10,9 @@ OPERATOR = {'+', '-', '=', '/', '*'}
 SPECIAL = {'(', ')'}
 OTHER = {".", " ", "_"}
 ALPHABET = DECIMAL | LETTER | OPERATOR | SPECIAL | OTHER
+
 f = open('index.html','w')
+
 #String en el que almacenamos el inicio de nuestro documento html y las clases para cada tipo de elemento de python
 startFile = """
 <!DOCTYPE html>
@@ -60,13 +62,14 @@ closeFile = """
 </html>
 """
 #Strings en los que almacenamos la etiqueta con la que se personalizará cada token de python sgún su tipo
-comment = '<p class="comment">'
-identifyer = '<p class="identifyer">'
-reserved = '<p class="reserved">'
-literal = '<p class="literal">'
-operator = '<p class="operator">'
-delimiter = '<p class="comment">'
-closingTag ='</p>'
+def OpenTag(tag):
+    return '<p class="' + tag + '">'
+
+def ClosingTag():
+    return '</p>'
+
+
+reserved_words = ['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']
 
 def errorDetector(actual, next, token, char):
     numbersNotValid = {8, 9, 13, 14}
@@ -93,18 +96,18 @@ def tokenHandler(actual, next, token, char):
         token += char 
         fix = True
     elif (actual in {7, 10}): # Se termino el Entero 
-        tag = literal + ' ' + token + closingTag
+        tag = OpenTag("literal") + token + ClosingTag()
         f.write(tag)
         # print(token, "-> Integer")
         token = ""
     elif (actual in {12, 15, 11}): 
-        tag = literal + ' ' + token + closingTag
+        tag = OpenTag("literal") + token + ClosingTag()
         f.write(tag)
         # print(token, "-> Floating")
         token = ""
 
     if(actual == 1 and next != 7): # MINUS
-        tag = operator + ' ' + token + closingTag
+        tag = OpenTag("operator") + token + ClosingTag()
         f.write(tag)
         # print(token, "-> Minus")
         token = ""
@@ -114,17 +117,17 @@ def tokenHandler(actual, next, token, char):
         fix = True 
     elif (actual == 6): # Se termino la Division
         if (fix):
-            tag = operator + ' ' + token[:-1] + closingTag
+            tag = OpenTag("operator") + token[:-1] + ClosingTag()
             f.write(tag)
             # print (token[:-1], "-> Division")
             token = token[-1]
         else:
-            tag = operator + ' ' + token + closingTag
+            tag = OpenTag("operator") + token + ClosingTag()
             f.write(tag)
             # print(token, "-> Division")
             token = ""
     elif (actual == 16): # Se termino el comentario
-        tag = comment + ' ' + token + closingTag
+        tag = OpenTag("comment") + token + ClosingTag()
         f.write(tag)
         # print(token, "-> Comment")
         token = ""
@@ -134,12 +137,18 @@ def tokenHandler(actual, next, token, char):
         fix = True 
     elif (actual == 17 and next != 17): # Se termino la variable
         if (fix): 
-            tag = identifyer + ' ' + token[:-1] + closingTag
+            if (token in reserved_words):
+                tag = OpenTag("reserved") + token[:-1] + ClosingTag()
+            else:
+                tag = OpenTag("identifyer") + token[:-1] + ClosingTag()   
             f.write(tag)
             # print (token[:-1], "-> Variable")
             token = token[-1]
         else:
-            tag = identifyer + ' ' + token + closingTag
+            if (token in reserved_words):
+                tag = OpenTag("reserved") + token + ClosingTag()
+            else:
+                tag = OpenTag("identifyer") + token + ClosingTag()
             f.write(tag)
             # print(token, "-> Variable")
             token = ""
@@ -149,23 +158,23 @@ def tokenHandler(actual, next, token, char):
         fix = True
     elif (actual == 4): # Se termino el Power
         if (fix): 
-            tag = operator + ' ' + token[:-1] + closingTag
+            tag = OpenTag("operator") + token[:-1] + ClosingTag()
             f.write(tag)
             # print (token[:-1], "-> Power")
             token = token[-1]
         else:
-            tag = operator + ' ' + token + closingTag
+            tag = OpenTag("operator") + token + ClosingTag()
             f.write(tag)
             # print(token, "-> Power")
             token = ""
     elif (actual == 3): # Se termino la Multiplicacion
         if (fix): 
-            tag = operator + ' ' + token[:-1] + closingTag
+            tag = OpenTag("operator") + token[:-1] + ClosingTag()
             f.write(tag)
             # print (token[:-1], "-> Multiplication")
             token = token[-1]
         else:
-            tag = operator + ' ' + token + closingTag
+            tag = OpenTag("operator") + token + ClosingTag()
             f.write(tag)
             # print(token, "-> Multiplication")
             token = ""
@@ -173,36 +182,42 @@ def tokenHandler(actual, next, token, char):
 
     if (next == 2): # PLUS 
         # print(char, "-> Plus")
-        tag = operator + ' ' + char + closingTag
+        tag = OpenTag("operator") + char + ClosingTag()
         f.write(tag)
     elif (next == 1): # MINUS
         token += char 
     elif (next == 5): # EQUALS
-        tag = operator + ' ' + char + closingTag
+        tag = OpenTag("operator") + char + ClosingTag()
         f.write(tag)
         # print(char, "-> Equals")
     elif (next == 19): # OPENING PARENTHESIS
-        tag = operator + ' ' + char + closingTag
+        tag = OpenTag("operator") + char + ClosingTag()
         f.write(tag)
         # print(char, "-> Opening parenthesis")
     elif (next == 18): # CLOSING PARENTHESIS
-        tag = operator + ' ' + char + closingTag
+        tag = OpenTag("operator") + char + ClosingTag()
         f.write(tag)
         # print(char, "-> Closing parenthesis")
     elif (next == 21): # POWER
-        tag = operator + ' ' + char + closingTag
+        tag = OpenTag("operator") + char + ClosingTag()
         f.write(tag)
         # print(char, "-> Power")
     elif (next == 22): # COLON
-        tag = operator + ' ' + char + closingTag
+        tag = OpenTag("operator") + char + ClosingTag()
         f.write(tag)
         # print(char, "-> Colon")
+    elif (char in ['[', ']', '<', '>', ',']):
+        tag = OpenTag("operator") + char + ClosingTag()
+        f.write(tag)
+        return token
+
     elif (char == '\n'): # salto de linea
         f.write('<br>')
         return token
     elif (char == ' '): 
         f.write('<p>&nbsp;<p>')
-        return token        
+        return token     
+    
     return token
 
 
@@ -217,30 +232,38 @@ def getMovement(char):
         return char
     
 def analyzeFile(file): 
-    d = [{"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, # q0
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 8, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q1
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 8, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q2
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 4, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q3
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1, "*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q4
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q5
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 20, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q6
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 8, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q7
-        {"DECIMAL": 10, "LETTER": 17, "E,e": 17, "+": 9, "-": 9,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q8
-        {"DECIMAL": 10, "LETTER": 17, "E,e": 17, "+": 9, "-": 9,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q9
-        {"DECIMAL": 10, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q10
-        {"DECIMAL": 12, "LETTER": 20, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q11
-        {"DECIMAL": 12, "LETTER": 17, "E,e": 13, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q12
-        {"DECIMAL": 15, "LETTER": 17, "E,e": 17, "+": 14, "-": 14,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q13
-        {"DECIMAL": 15, "LETTER": 17, "E,e": 17, "+": 14, "-": 14,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q14
-        {"DECIMAL": 15, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q15
-        {"DECIMAL": 16, "LETTER": 16, "E,e": 16, "+": 16, "-": 16,"*": 16, "/": 16, "=": 16, "(": 16, ")": 16, " ": 16, ".": 16, "_": 16, "^": 16, "\n": 0, '#':16, ':':16 }, #q16
-        {"DECIMAL": 17, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 17, "^": 21, "\n": 0, '#':16, ':':22 }, #q17
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q18
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q19
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q20
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 }, #q21
-        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22 } # q22
-        ] 
+    d = [{"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"':25 , "'":26 , '<':27 , '>':28, ',': 29  }, # q0
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 8, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23  , ']':24 , '"':25 , "'":26 , '<':27 , '>':28, ',': 29  }, #q1
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 8, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q2
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 4, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28 , ',': 29 }, #q3
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1, "*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q4
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q5
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 20, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q6
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 8, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q7
+        {"DECIMAL": 10, "LETTER": 17, "E,e": 17, "+": 9, "-": 9,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q8
+        {"DECIMAL": 10, "LETTER": 17, "E,e": 17, "+": 9, "-": 9,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q9
+        {"DECIMAL": 10, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q10
+        {"DECIMAL": 12, "LETTER": 20, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q11
+        {"DECIMAL": 12, "LETTER": 17, "E,e": 13, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q12
+        {"DECIMAL": 15, "LETTER": 17, "E,e": 17, "+": 14, "-": 14,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q13
+        {"DECIMAL": 15, "LETTER": 17, "E,e": 17, "+": 14, "-": 14,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q14
+        {"DECIMAL": 15, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q15
+        {"DECIMAL": 16, "LETTER": 16, "E,e": 16, "+": 16, "-": 16,"*": 16, "/": 16, "=": 16, "(": 16, ")": 16, " ": 16, ".": 16, "_": 16, "^": 16, "\n": 0, '#':16, ':':16, '[':16, ']':25 , '26"':16 , "'":16 , '<':16 , '>':16, ',': 16  }, #q16
+        {"DECIMAL": 17, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 17, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q17
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q18
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q19
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q20
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, #q21
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28 , ',': 29 }, # q22
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 20, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"': 25, "'":26 , '<':27 , '>':28, ',': 29  }, # q23
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"':25 , "'":26 , '<':27 , '>':28, ',': 29  }, # q24
+        {"DECIMAL": 25, "LETTER": 25, "E,e": 25, "+": 25, "-": 25 ,"*": 25 , "/": 25 , "=": 25 , "(": 25, ")": 25, " ": 25, ".": 25, "_": 25, "^": 25, "\n": 25 , '#':25 , ':': 25, '[': 25 , ']': 25, '"': 0 , "'":25 , '<':25 , '>':25, ',': 25  }, # q25 - strings
+        {"DECIMAL": 26, "LETTER": 26, "E,e": 26, "+": 26, "-": 26,"*": 26, "/": 26, "=": 26, "(": 26, ")": 26, " ": 26, ".": 26, "_": 26, "^": 26, "\n": 26, '#':26, ':':26, '[':26 , ']':26 , '"':26 , "'":0 , '<':26 , '>':26, ',': 29  }, # q26
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"':25 , "'":26 , '<':27 , '>':28, ',': 29  }, # q27
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"':25 , "'":26 , '<':27 , '>':28, ',': 29  },
+        {"DECIMAL": 7, "LETTER": 17, "E,e": 17, "+": 2, "-": 1,"*": 3, "/": 6, "=": 5, "(": 19, ")": 18, " ": 0, ".": 11, "_": 20, "^": 21, "\n": 0, '#':16, ':':22, '[':23 , ']':24 , '"':25 , "'":26 , '<':27 , '>':28, ',': 29  }]  # q29     
+             
+        
     state = 0 
     # acceptance = {1, 2, 3, 4, 5, 6, 7, 10, 12, 15, 16, 17, 18, 19, 21}
     token = "" 
@@ -266,7 +289,7 @@ def lexerAritmetico(file_name):
 
 def main():
     # file_name = input("Ingrese el nombre del archivo: ")
-    
+
     f.write(startFile)
    
     file_name = 'ejemplo.txt'

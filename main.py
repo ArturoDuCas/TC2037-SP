@@ -11,60 +11,60 @@ SPECIAL = {'(', ')'}
 OTHER = {".", " ", "_"}
 ALPHABET = DECIMAL | LETTER | OPERATOR | SPECIAL | OTHER
 
-#String en el que almacenamos el inicio de nuestro documento html y las clases para cada tipo de elemento de python
-startFile = """
-<!DOCTYPE html>
-<html>
-  <head>
-    <style>
-        .comment {
-          color: green;
-        }
+# #String en el que almacenamos el inicio de nuestro documento html y las clases para cada tipo de elemento de python
+# startFile = """
+# <!DOCTYPE html>
+# <html>
+#   <head>
+#     <style>
+#         .comment {
+#           color: green;
+#         }
 
-        .identifyer {
-          color: lightskyblue;
-        }
+#         .identifyer {
+#           color: lightskyblue;
+#         }
         
-        .reserved {
-          color: purple;
-        }
+#         .reserved {
+#           color: purple;
+#         }
         
-        .literal {
-          color: blue;
-        }
+#         .literal {
+#           color: blue;
+#         }
         
-        .operator {
-          color: white;
-        }
+#         .operator {
+#           color: white;
+#         }
         
-        .delimiter {
-          color: yellow;
-        }
+#         .delimiter {
+#           color: yellow;
+#         }
         
-        html {
-          background-color: black;
-        }
+#         html {
+#           background-color: black;
+#         }
 
-        br{
-            heihgt: 2px;
-        }
-    </style>
-  </head>
-  <body>
-"""
-#string en el que guardamos las etiquetas de cierre de <html> y <body>
-closeFile = """
-</body>
-</html>
-"""
-#Strings en los que almacenamos la etiqueta con la que se personalizará cada token de python sgún su tipo
-comment = '<p class="comment">'
-identifyer = '<p class="identifyer">'
-reserved = '<p class="reserved">'
-literal = '<p class="literal">'
-operator = '<p class="operator">'
-delimiter = '<p class="comment">'
-closingTag ='</p>'
+#         br{
+#             heihgt: 2px;
+#         }
+#     </style>
+#   </head>
+#   <body>
+# """
+# #string en el que guardamos las etiquetas de cierre de <html> y <body>
+# closeFile = """
+# </body>
+# </html>
+# """
+# #Strings en los que almacenamos la etiqueta con la que se personalizará cada token de python sgún su tipo
+# comment = '<p class="comment">'
+# identifyer = '<p class="identifyer">'
+# reserved = '<p class="reserved">'
+# literal = '<p class="literal">'
+# operator = '<p class="operator">'
+# delimiter = '<p class="comment">'
+# closingTag ='</p>'
 
 def errorDetector(actual, next, token, char):
     numbersNotValid = {8, 9, 13, 14}
