@@ -36,6 +36,10 @@ startFile = """
           color: lightgreen;
         }
         
+        .string {
+          color: orange;
+        }
+
         .operator {
           color: white;
         }
@@ -111,6 +115,17 @@ def tokenHandler(actual, next, token, char):
         f.write(tag)
         # print(token, "-> Minus")
         token = ""
+
+    if (next in [25, 26]): #empieza string
+        token += char
+        fix = True 
+    elif (actual in [25, 26]): # Se termino el string
+        token += char
+        tag = OpenTag("string") + token + ClosingTag()
+        f.write(tag)
+        # print(token, "-> string")
+        token = ""
+    
 
     if (next in {6, 16}): # DIVISION OR COMMENT
         token += char
@@ -215,7 +230,7 @@ def tokenHandler(actual, next, token, char):
         f.write('<br>')
         return token
     elif (char == ' '): 
-        f.write('<p>&nbsp;<p>')
+        f.write('<p>&nbsp&nbsp;<p>')
         return token     
     
     return token
