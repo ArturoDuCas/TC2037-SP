@@ -1,4 +1,6 @@
 def fibonacci(n):
+    car.append()
+
     if n <= 0:
         return []
     elif n == 1:
@@ -8,7 +10,7 @@ def fibonacci(n):
     else:
         fib = [0, 1]
         while len(fib) < n:
-            fib.append(fib[-1] + fib[-2])
+            fib.2append(fib[-1] + fib[-2])
         return "Hola esto es un string"
 
 cadena = "holas mundo" 32Afdsa 1321EEE
