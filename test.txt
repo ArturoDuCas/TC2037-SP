@@ -1,6 +1,3 @@
-def myFunction(): 
-    print("Hello from a function")
-
-var = 15
-
-# Now you can call myFunction() function
+3A def:
+3a
+"Hola"  

@@ -49,7 +49,7 @@ FILE_START = """
         }
         
         .error {
-            color: red;
+            color: red; 
         }
         
         html {
@@ -83,7 +83,6 @@ def errorDetector(actual, next, token, char):
     numbersNotValid = {8, 9, 13, 14}
     numbers = {7, 8, 9, 10, 11, 12, 13, 14, 15}
     if (actual == 7 and next == 17): # Variable no empieza con letra 
-        f.write(OpenTag("error") + token + char + ClosingTag())
         return True 
     if (actual in numbersNotValid and next not in numbers): # Error en numeros 
         print (token, "-> Numero no valido")
@@ -97,7 +96,7 @@ def errorDetector(actual, next, token, char):
 
 def tokenHandler(actual, next, token, char):
     if (errorDetector(actual, next, token, char)): # En caso de recibir un token no valido
-        return "ERROR"
+        return "ERROR" + token + char
         
     
     fix = False # Cuando se le agrega algo a token y se debe quitar si es que se necesitaba imprimir sin el token 
@@ -212,11 +211,11 @@ def tokenHandler(actual, next, token, char):
         f.write(tag)
         # print(char, "-> Equals")
     elif (next == 19): # OPENING PARENTHESIS
-        tag = OpenTag("operator") + char + ClosingTag()
+        tag = OpenTag("delimiter") + char + ClosingTag()
         f.write(tag)
         # print(char, "-> Opening parenthesis")
     elif (next == 18): # CLOSING PARENTHESIS
-        tag = OpenTag("operator") + char + ClosingTag()
+        tag = OpenTag("delimiter") + char + ClosingTag()
         f.write(tag)
         # print(char, "-> Closing parenthesis")
     elif (next == 21): # POWER
@@ -227,7 +226,12 @@ def tokenHandler(actual, next, token, char):
         tag = OpenTag("operator") + char + ClosingTag()
         f.write(tag)
         # print(char, "-> Colon")
-    elif (char in ['[', ']', '<', '>', ',']):
+    elif (char in ['[', ']', '{', '}']):
+        tag = OpenTag("delimiter") + char + ClosingTag()
+        f.write(tag)
+        return token
+
+    elif (char in ['<', '>', ',']):
         tag = OpenTag("operator") + char + ClosingTag()
         f.write(tag)
         return token
@@ -286,16 +290,31 @@ def analyzeFile(file):
              
         
     state = 0 
-    # acceptance = {1, 2, 3, 4, 5, 6, 7, 10, 12, 15, 16, 17, 18, 19, 21}
+    onError = False # For handling errors
+
     token = "" 
     for char in file: 
-        move = getMovement(char)
-        token = tokenHandler(state, d[state][move], token, char)
-        if (token == "ERROR"):
-            state = 0
-            token = ""
-        else: 
-            state = d[state][move]
+        if (not onError):
+            move = getMovement(char)
+            token = tokenHandler(state, d[state][move], token, char)
+            if (token[0:5] == "ERROR"):
+                onError = True
+                token = token[5:]
+            else: 
+                state = d[state][move]
+        else: # If an error has been found, append chars to the errror until a space or a new line is found
+            if (char == " " or char == "\n"): # The error has ended
+                onError = False
+                state = 0
+                f.write(OpenTag("error") + token + char + ClosingTag())
+                token = ""
+                if (char == "\n"):
+                    f.write('<br>')
+                elif (char == " "):
+                    f.write('<p>&nbsp&nbsp;<p>')
+            
+            else: # The error is still being read
+                token += char
 
     if (len(token) > 0): #If the file ends with a comment
         tokenHandler(state, d[state]["\n"], token, "\n") 
