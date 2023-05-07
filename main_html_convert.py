@@ -14,7 +14,7 @@ ALPHABET = DECIMAL | LETTER | OPERATOR | SPECIAL | OTHER
 f = open('index.html','w')
 
 #String en el que almacenamos el inicio de nuestro documento html y las clases para cada tipo de elemento de python
-startFile = """
+FILE_START = """
 <!DOCTYPE html>
 <html>
   <head>
@@ -48,6 +48,10 @@ startFile = """
           color: yellow;
         }
         
+        .error {
+            color: red;
+        }
+        
         html {
           background-color: black;
           line-height: .1px;
@@ -61,7 +65,7 @@ startFile = """
   <body>
 """
 #string en el que guardamos las etiquetas de cierre de <html> y <body>
-closeFile = """
+FILE_CLOSE = """
 </body>
 </html>
 """
@@ -79,7 +83,7 @@ def errorDetector(actual, next, token, char):
     numbersNotValid = {8, 9, 13, 14}
     numbers = {7, 8, 9, 10, 11, 12, 13, 14, 15}
     if (actual == 7 and next == 17): # Variable no empieza con letra 
-        print (token + char, "-> Variable no valida")
+        f.write(OpenTag("error") + token + char + ClosingTag())
         return True 
     if (actual in numbersNotValid and next not in numbers): # Error en numeros 
         print (token, "-> Numero no valido")
@@ -89,10 +93,12 @@ def errorDetector(actual, next, token, char):
         return True
     else: 
         return False
-    
+
+
 def tokenHandler(actual, next, token, char):
     if (errorDetector(actual, next, token, char)): # En caso de recibir un token no valido
         return "ERROR"
+        
     
     fix = False # Cuando se le agrega algo a token y se debe quitar si es que se necesitaba imprimir sin el token 
 
@@ -297,7 +303,7 @@ def analyzeFile(file):
 
 
 # Receives the name of a file and returns a list with each of its lines.
-def lexerAritmetico(file_name):
+def getFile(file_name):
     with open(file_name, "r") as file: 
         return file.read()
 
@@ -305,12 +311,13 @@ def lexerAritmetico(file_name):
 def main():
     # file_name = input("Ingrese el nombre del archivo: ")
 
-    f.write(startFile)
+    f.write(FILE_START)
    
     file_name = 'ejemplo.txt'
-    file = lexerAritmetico(file_name) 
+    file = getFile(file_name) 
     analyzeFile(file)
-    f.write(closeFile)
+    
+    f.write(FILE_CLOSE)
     f.close()
 
 

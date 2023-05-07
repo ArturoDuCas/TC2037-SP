@@ -2,3 +2,5 @@ def myFunction():
     print("Hello from a function")
 
 var = 15
+
+# Now you can call myFunction() function
